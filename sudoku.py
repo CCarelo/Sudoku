@@ -44,8 +44,6 @@ def solveBoard(board):
     #Assumed to be solved
     found = findFirstEmpty(board)
     if(found == None):
-        print('\nSolved')
-        printBoard(board)
         return True
     
     row,col = found
@@ -87,8 +85,4 @@ def valid(board, num, pos):
     return True
 
 
-printBoard(board)
-solveBoard(board)
-if(findFirstEmpty(board) != None):
-    print('\nBoard has no solution')
-   
+
