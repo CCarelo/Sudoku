@@ -14,13 +14,13 @@ pygame.init()
 pygame.font.init()
 
 WHITE = (255, 255, 255)
-BLUE = (65,65,160)
+BLUE = (65, 65, 160)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
 
 class display:
-    def __init__ (self, rows, cols, width, height, board):
+    def __init__(self, rows, cols, width, height, board):
         self.rows = rows
         self.cols = cols
         self.width = width
@@ -29,19 +29,18 @@ class display:
         self.selected = None
         self.solved = False
 
-        #save a copy of the original board and the solved board
+        # save a copy of the original board and the solved board
         copy = deepcopy(board)
-        sol  = deepcopy(board)
+        sol = deepcopy(board)
         self.original = copy
         self.canSolve = sudoku.solveBoard(sol)
         self.solution = sol
 
-    def placeNum(self,num):
-        row,col = self.selected
+    def placeNum(self, num):
+        row, col = self.selected
         self.board[row][col] = num
                
-    def draw(self,window):
-        
+    def draw(self, window):
         box_height = self.height / 9
         box_width = self.width / 9
         window.fill(WHITE)
@@ -49,16 +48,16 @@ class display:
 
         for i in range(9):
             
-            #draw the grid
+            # draw the grid
             if i > 0:
                 line_width = 2
                 if i % 3 == 0:
                     line_width = 4
                     
                 y = int(i * box_height)
-                pygame.draw.line(window, BLACK, (0,y), (self.width, y), line_width)
+                pygame.draw.line(window, BLACK, (0, y), (self.width, y), line_width)
                 x = int(i * box_width)
-                pygame.draw.line(window, BLACK, (x,0), (x, self.height), line_width)
+                pygame.draw.line(window, BLACK, (x, 0), (x, self.height), line_width)
             
             # draw the numbers
             for j in range(9):
@@ -74,12 +73,12 @@ class display:
                 if txt == '0':
                     continue
 
-                y_centre = int((i + 0.5)* box_height)
+                y_centre = int((i + 0.5) * box_height)
                 x_centre = int((j + 0.5) * box_width)
 
                 text_surf = font.render(txt, True, colour)
                 text_rect = text_surf.get_rect()
-                text_rect.center = (x_centre,y_centre)
+                text_rect.center = (x_centre, y_centre)
                 window.blit(text_surf, text_rect)
 
         if self.selected:
@@ -98,14 +97,18 @@ class display:
 
         pygame.display.update()
 
-    def click(self,pos):
-        if pos[0]> self.width or pos[1] > self.height:
+    def click(self, pos):
+        if pos[0] > self.width or pos[1] > self.height:
             return None
         x_gap = self.width/9
         y_gap = self.height/9
         i = int(pos[1] // y_gap)
         j = int(pos[0] // x_gap)
-        return i,j
+        return i, j
+
+    def select(self, click):
+        self.selected = click
+
 
 board = [
         [7, 8, 0, 4, 0, 0, 1, 2, 0],
@@ -119,14 +122,14 @@ board = [
         [0, 4, 9, 2, 0, 6, 0, 0, 7]
         ]
 
-#initialize the window
+# initialize the window
 WIDTH = 600
 HEIGHT = 600
-window = pygame.display.set_mode((WIDTH,HEIGHT))
+window = pygame.display.set_mode((WIDTH, HEIGHT))
 window.fill(WHITE)
 pygame.display.set_caption("Sudoku")
 
-disp = display(9,9,WIDTH,HEIGHT,board)
+disp = display(9, 9, WIDTH, HEIGHT, board)
 disp.draw(window)
 pygame.display.update()
 
@@ -135,13 +138,14 @@ running = True
 key = None
 while running:
     for event in pygame.event.get():
+        key = None
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             clicked = disp.click(pos)
             if clicked:
-                disp.selected = (clicked[0], clicked[1])
+                disp.select(clicked)
                 key = None
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1 or event.key == pygame.K_KP1:
@@ -164,15 +168,15 @@ while running:
                 key = 9
             if event.key == pygame.K_DELETE or event.key == pygame.K_BACKSPACE or event.key == pygame.K_0:
                 key = None
-                i,j = disp.selected
+                i, j = disp.selected
                 # Only erase the space if it came from user input
                 if disp.original[i][j] == 0:
-                    disp.board[i][j] = 0
+                    disp.placeNum(0)
 
         if key is not None:
-            i,j = disp.selected
+            i, j = disp.selected
             if disp.original[i][j] == 0:
-                disp.board[i][j] = key
+                disp.placeNum(key)
 
     disp.draw(window)
     pygame.display.update()
